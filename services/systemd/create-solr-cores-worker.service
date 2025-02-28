@@ -1,0 +1,19 @@
+[Unit]
+Description=REDIS Queue worker to create SOLR cores.
+
+[Service]
+WorkingDirectory=/srv/app
+PIDFile=/srv/app/run/create-solr-cores-worker.pid
+User=solr
+ExecStart=/srv/app/pysolr_utils_venv/bin/python /srv/app/src/pysolr_utils/solr_utils/create_solr_core/worker.py -r redis://user:pass@redis:6379/2 -q my_queue_name
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -INT $MAINPID
+NotifyAccess=all
+Restart=on-failure
+Type=simple
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=solr_utils
+
+[Install]
+WantedBy=multi-user.target
