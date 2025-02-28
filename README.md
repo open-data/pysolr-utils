@@ -34,9 +34,12 @@ To have the worker run as a listener service, there are example service files in
 Your application on another server would do something like this to create a SOLR core:
 ```
 import rq
+from redis import ConnectionPool, Redis
 
 def create_solr_core(core_name, configset):
-  redis_queue = rq.Queue('my_redis_queue, connection=redis_conn)
+  pool = ConnectionPool.from_url('redis://user:pass@redis:6379/2')
+  redis_conn = Redis(connection_pool=pool)
+  redis_queue = rq.Queue('my_redis_queue', connection=redis_conn)
   if not redis_queue:
       raise Exception("Could not connect to REDIS")
   job = redis_queue.enqueue_call(
