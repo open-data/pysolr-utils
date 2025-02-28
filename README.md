@@ -35,23 +35,19 @@ Your application on another server would do something like this to create a SOLR
 ```
 import rq
 
-REDIS_QUEUE_NAME = 'my_redis_queue'
-_solr_queues = {}
-
 def create_solr_core(core_name, configset):
-  global _solr_queues
-  if REDIS_QUEUE_NAME in _solr_queues:
-      redis_queue = _solr_queues[REDIS_QUEUE_NAME]
-  else:
-      redis_conn = connect_to_redis()
-      redis_queue = _solr_queues[REDIS_QUEUE_NAME] = \
-          rq.Queue(REDIS_QUEUE_NAME, connection=redis_conn)
+  redis_queue = rq.Queue('my_redis_queue, connection=redis_conn)
   if not redis_queue:
-      raise Exception("Could not connect to REDIS queue %s" % REDIS_QUEUE_NAME)
+      raise Exception("Could not connect to REDIS")
   job = redis_queue.enqueue_call(
       'solr_utils.create_solr_core.proc.create_solr_core',
-      args=[core_name, configset],
+      kwargs={'core_name': core_name,
+              'config_set': configset},
       timeout=60)
 
 create_solr_core('my_new_core', 'my_configset')
 ```
+
+#### REDIS Queue Callbacks
+
+TODO: document queue callback functions...
