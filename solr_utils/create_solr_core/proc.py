@@ -5,7 +5,7 @@ import rq
 
 def create_solr_core(core_name, config_set,
                      callback_fn=None, callback_queue=None,
-                     callback_timeout=180):
+                     callback_timeout=180, callback_extras=None):
     solr_home = os.environ.get('SOLR_HOME', '/var/solr/data')
     config_set = f'{solr_home}/configsets/{config_set}'
     process = subprocess.run(
@@ -25,7 +25,8 @@ def create_solr_core(core_name, config_set,
                 args=[{'core_name': core_name,
                        'exit_code': process.returncode,
                        'stdout': process.stdout.decode('utf-8'),
-                       'stderr': process.stderr.decode('utf-8')}],
+                       'stderr': process.stderr.decode('utf-8'),
+                       'extras': callback_extras}],
                 timeout=callback_timeout)
         if not job.meta:
             job.meta = {}
